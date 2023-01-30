@@ -29,7 +29,7 @@ const router = new VueRouter({
 // 全局前置路由守卫
 router.beforeEach((to, from, next) => {
   const token = store.state.token
-  if (token) {
+  if (token && !store.state.userInfo.username) {
     // 你现在本地有token值， 才去请求用户的信息
     store.dispatch('getUserInfoActions')
   }
