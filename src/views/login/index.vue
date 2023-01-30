@@ -22,7 +22,7 @@
           ></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" class="btn-login">登录</el-button>
+          <el-button type="primary" class="btn-login" @click="loginFn">登录</el-button>
           <el-link type="info" @click="$router.push('/reg')">去注册</el-link>
         </el-form-item>
       </el-form>
@@ -31,6 +31,7 @@
 </template>
 
 <script>
+import { loginAPI } from '@/api'
 export default {
   name: 'my-login',
   data () {
@@ -51,6 +52,30 @@ export default {
           { pattern: /^\S{6,15}$/, message: '密码必须是6-15的非空字符', trigger: 'blur' }
         ]
       }
+    }
+  },
+  methods: {
+    // 登录=> 点击事件
+    loginFn () {
+      this.$refs.loginRef.validate(async valid => {
+        if (valid) {
+          // console.log(this.loginForm)
+          // 就是为了拿到后台真正的数据赋予给res
+          const { data: res } = await loginAPI(this.loginForm)
+          // console.log(res)
+          // 根据后台返回的登陆提示信息，做判断给用户提示
+          // 直接用后台返回的提示message值
+          if (res.code === 0) {
+            // 成功
+            this.$message.success(res.message)
+          } else {
+            // 失败
+            this.$message.error(res.message)
+          }
+        } else {
+          return false
+        }
+      })
     }
   }
 }
