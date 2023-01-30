@@ -4,7 +4,14 @@
 </template>
 
 <script>
-export default {}
+// import { getUserInfoAPI } from '@/api'
+export default {
+//   created () {
+//     getUserInfoAPI().then(res => {
+//       console.log(res)
+//     })
+//   }
+}
 </script>
 
 <style scoped>

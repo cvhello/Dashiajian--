@@ -1,6 +1,7 @@
 //  封装的是具体的接口请求方法
 //  注意： 每个方法只负责请求一个url地址
 import request from '@/utils/request' // 引入自定义函数
+import store from '@/store' // 引入store对象
 
 // registerAPI(this.form)
 // registerAPI({
@@ -17,6 +18,11 @@ import request from '@/utils/request' // 引入自定义函数
 // key是传入的对象key匹配，value是变量名，用于接受外面传入的值
 // es6规定，key和value变量同名的时候，可以简写（key即是key 也是value的变量名）
 
+/**
+ * 注册接口
+ * @param {*} param0 {username:用户名，password:密码，repassword}
+ * @returns Promise对象
+ */
 // 导出接口方法，为了在逻辑页面引入后调用
 export const registerAPI = ({ username, password, repassword }) => {
   // 原地是一个Promise对象 （内部包含原生ajax请求）
@@ -47,6 +53,18 @@ export const loginAPI = ({ username, password }) => {
     data: {
       username,
       password
+    }
+  })
+}
+
+export const getUserInfoAPI = () => {
+  return request({
+    url: '/my/userinfo',
+    // method不写默认就是'get'方式请求
+    // 传参给后台： params(查询字符串query),data(请求体body)，headers(请求头)
+    headers: {
+      // this.$store.state.token这里this不是组件对象不能用this.$store拿到store对象
+      Authorization: store.state.token
     }
   })
 }
