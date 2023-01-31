@@ -41,10 +41,12 @@
     @open：sub-menu 展开的回调
     @close: sub-menu  关闭的回调
     active-text-color:激活时的颜色，哪项index的值和default-active一致，就会被设置动态文字颜色
-
+router:设置上（默认值为true），就会当你点击某行菜单的时候，以index值作为路由切换
     子标签：
     如果有嵌套，先写el-submenu (里面嵌套template#title的设置当前展示内容，子用el-menu-item展示)
     如果无嵌套，直接写el-menu-item
+
+    熟悉没有显示传值，默认值为true(背)
      -->
     <el-menu
       default-active="/home"
@@ -53,41 +55,27 @@
       @close="handleClose"
       background-color="#23262E"
       text-color="#fff"
-      active-text-color="#409EFF">
-
-      <el-menu-item index="/home">
-        <i class="el-icon-s-home"></i>
-        <span>首页</span>
+      active-text-color="#409EFF"
+      unique-opened
+      router
+      >
+      <template v-for="item in menus">
+      <el-menu-item v-if="!item.children" :index="item.indexPath" :key="item.indexPath">
+        <i :class="item.con"></i>
+        <span>{{item.title}}</span>
       </el-menu-item>
-      <el-submenu index="/topic">
+      <el-submenu v-else :index="item.indexPath" :key="item.indexPath">
         <template slot="title">
-          <i class="el-icon-s-order"></i>
-          <span>文章管理</span>
+          <i :class="item.icon"></i>
+          <span>{{item.title}}</span>
         </template>
-         <el-menu-item index="/topic1">
-        <i class="el-icon-s-home"></i>
-        <span>文章1</span>
-      </el-menu-item>
-       <el-menu-item index="/topic2">
-        <i class="el-icon-s-home"></i>
-        <span>文章2</span>
+         <el-menu-item v-for="obj, index in item.children" :index="obj.indexPath" :key="index">
+        <i class="obj.icon"></i>
+        <span>{{obj.title}}</span>
       </el-menu-item>
       </el-submenu>
-      <el-submenu index="/my">
-        <template slot="title">
-          <i class="el-icon-s-order"></i>
-          <span>个人中心</span>
-        </template>
-         <el-menu-item index="/my1">
-        <i class="el-icon-s-home"></i>
-        <span>中心1</span>
-      </el-menu-item>
-       <el-menu-item index="//my2">
-        <i class="el-icon-s-home"></i>
-        <span>中心2</span>
-      </el-menu-item>
-      </el-submenu>
-    </el-menu>
+      </template>
+     </el-menu>
       </el-aside>
       <el-container>
         <!-- 页面主体区域 -->
@@ -108,8 +96,14 @@
 // 解决：@事件名.native="methods里方法名"
 // .native给组件内跟标签，绑定这个原生事件
 import { mapGetters } from 'vuex'
+import { getMenusListAPI } from '@/api'
 export default {
   name: 'my-layout',
+  data () {
+    return {
+      menus: [] // 侧边栏的数据
+    }
+  },
   computed: {
     ...mapGetters(['username', 'nickname', 'user_pic'])
   },
@@ -136,7 +130,17 @@ export default {
     },
     handleClose (key, keyPath) {
       console.log(key, keyPath)
+    },
+    // 请求-侧边栏数据
+    async getMenusListFn () {
+      const res = await getMenusListAPI()
+      // console.log(res)
+      this.menus = res.data.data
     }
+  },
+  created () {
+    // 请求侧边栏的数据
+    this.getMenusListFn()
   }
 }
 </script>

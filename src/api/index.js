@@ -57,6 +57,10 @@ export const loginAPI = ({ username, password }) => {
   })
 }
 
+/**
+ * 获取用户信息
+ * @returns Promise对象
+ */
 export const getUserInfoAPI = () => {
   return request({
     url: '/my/userinfo',
@@ -64,6 +68,19 @@ export const getUserInfoAPI = () => {
     // 传参给后台： params(查询字符串query),data(请求体body)，headers(请求头)
     headers: {
       // this.$store.state.token这里this不是组件对象不能用this.$store拿到store对象
+      Authorization: store.state.token
+    }
+  })
+}
+
+/**
+ * 获取-侧边栏数据
+ * @returns Promise对象
+ */
+export const getMenusListAPI = () => {
+  return request({
+    url: '/my/menus',
+    headers: {
       Authorization: store.state.token
     }
   })
