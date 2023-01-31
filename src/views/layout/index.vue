@@ -28,11 +28,66 @@
     <el-container>
       <!-- 侧边栏区域 -->
      <el-aside width="200px">
+      <!-- 侧边栏 用户信息区域 -->
     <div class="user-box">
-        <img :src="user_pic" alt="" v-if="user_pic" />
-        <img src="../../assets/images/logo.png" alt="" v-else />
+        <img v-if="user_pic" :src="user_pic" alt=""  />
+        <img v-else src="../../assets/images/logo.png" alt=""  />
         <span>欢迎 {{ nickname || username }}</span>
     </div>
+    <!-- 侧边栏的导航-菜单 -->
+    <!--
+      el-menu:导航菜单
+      default-active:当前激活菜单的 index(el-submenu/el-menu-item的值)
+    @open：sub-menu 展开的回调
+    @close: sub-menu  关闭的回调
+    active-text-color:激活时的颜色，哪项index的值和default-active一致，就会被设置动态文字颜色
+
+    子标签：
+    如果有嵌套，先写el-submenu (里面嵌套template#title的设置当前展示内容，子用el-menu-item展示)
+    如果无嵌套，直接写el-menu-item
+     -->
+    <el-menu
+      default-active="/home"
+      class="el-menu-vertical-demo"
+      @open="handleOpen"
+      @close="handleClose"
+      background-color="#23262E"
+      text-color="#fff"
+      active-text-color="#409EFF">
+
+      <el-menu-item index="/home">
+        <i class="el-icon-s-home"></i>
+        <span>首页</span>
+      </el-menu-item>
+      <el-submenu index="/topic">
+        <template slot="title">
+          <i class="el-icon-s-order"></i>
+          <span>文章管理</span>
+        </template>
+         <el-menu-item index="/topic1">
+        <i class="el-icon-s-home"></i>
+        <span>文章1</span>
+      </el-menu-item>
+       <el-menu-item index="/topic2">
+        <i class="el-icon-s-home"></i>
+        <span>文章2</span>
+      </el-menu-item>
+      </el-submenu>
+      <el-submenu index="/my">
+        <template slot="title">
+          <i class="el-icon-s-order"></i>
+          <span>个人中心</span>
+        </template>
+         <el-menu-item index="/my1">
+        <i class="el-icon-s-home"></i>
+        <span>中心1</span>
+      </el-menu-item>
+       <el-menu-item index="//my2">
+        <i class="el-icon-s-home"></i>
+        <span>中心2</span>
+      </el-menu-item>
+      </el-submenu>
+    </el-menu>
       </el-aside>
       <el-container>
         <!-- 页面主体区域 -->
@@ -75,6 +130,12 @@ export default {
       }).catch(() => {
         // 他选择了取消
       })
+    },
+    handleOpen (key, keyPath) {
+      console.log(key, keyPath)
+    },
+    handleClose (key, keyPath) {
+      console.log(key, keyPath)
     }
   }
 }
