@@ -19,6 +19,10 @@ const routes = [
       {
         path: 'user-info',
         component: () => import('@/views/user/userInfo.vue')
+      },
+      {
+        path: 'user-avatar',
+        component: () => import('@/views/user/userAvatar.vue')
       }
     ]
   },
