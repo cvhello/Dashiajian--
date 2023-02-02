@@ -23,6 +23,10 @@ const routes = [
       {
         path: 'user-avatar',
         component: () => import('@/views/user/userAvatar.vue')
+      },
+      {
+        path: 'user-pwd', // 必须用这个值
+        component: () => import('@/views/user/userPwd')
       }
     ]
   },
