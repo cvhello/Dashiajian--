@@ -49,7 +49,7 @@ router:设置上（默认值为true），就会当你点击某行菜单的时候
     熟悉没有显示传值，默认值为true(背)
      -->
     <el-menu
-      default-active="/home"
+      :default-active="$route.path"
       class="el-menu-vertical-demo"
       @open="handleOpen"
       @close="handleClose"
