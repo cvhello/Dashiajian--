@@ -32,6 +32,7 @@
 </template>
 
 <script>
+import { updatedUserInfoAPI } from '@/api'
 export default {
   name: 'UserInfo',
   data () {
@@ -45,13 +46,40 @@ export default {
       userFormRules: {
         nickname: [
           { required: true, message: '请输入用户昵称', trigger: 'blur' },
-          { pattern: /^\S{1,10}$/, message: '昵称必须是1-10位的非空字符串', trigger: 'blur' }
+          {
+            pattern: /^\S{1,10}$/,
+            message: '昵称必须是1-10位的非空字符串',
+            trigger: 'blur'
+          }
         ],
         email: [
           { required: true, message: '请输入用户邮箱', trigger: 'blur' },
           { type: 'email', message: '邮箱格式不正确', trigger: 'blur' }
         ]
       }
+    }
+  },
+  methods: {
+    // 提交修改-》点击事件
+    submitFn () {
+      this.$refs.userFormRef.validate(async (valid) => {
+        if (valid) {
+          console.log(this.userForm)
+          // 因为后端更新用户基本资料接口，需要带id过去，userForm对象本身没有
+          //   缺少一个id就给他添加一个
+          this.userForm.id = this.$store.state.userInfo.id
+          const { data: res } = await updatedUserInfoAPI(this.userForm)
+          if (res.code !== 0) return this.$message.error('更新用户信息失败！')
+          // 更新用户信息成功，刷新 Vuex 中的数据
+          this.$message.success('更新成功！')
+          // 重新让vuex获取下最新的用户数据
+          this.$store.dispatch('getUserInfoActions')
+          console.log(res)
+        } else {
+          // 未通过校验
+          return false
+        }
+      })
     }
   }
 }
