@@ -25,7 +25,7 @@
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="submitFn">提交修改</el-button>
-        <el-button>重置</el-button>
+        <el-button @click="resetFn">重置</el-button>
       </el-form-item>
     </el-form>
   </el-card>
@@ -80,6 +80,13 @@ export default {
           return false
         }
       })
+    },
+    // 重置按钮-》点击事件
+    resetFn () {
+      // this.userForm.nickname = ''
+      // this.userForm.email = ''
+      // el-form提供了一个重置表单（并且还能重置报错提示）
+      this.$refs.userFormRef.resetFields()
     }
   }
 }
