@@ -27,6 +27,9 @@ const routes = [
       {
         path: 'user-pwd', // 必须用这个值
         component: () => import('@/views/user/userPwd')
+      }, {
+        path: 'art-cate',
+        component: () => import('@/views/article/artCate')
       }
     ]
   },
