@@ -170,3 +170,18 @@ export const updateArtCateAPI = ({ id, cate_name, cate_alias }) => {
     }
   })
 }
+
+/**
+ * 删除文章分类
+ * @param {*} id 文章分类id
+ * @returns Promise对象
+ */
+export const delArtCateAPI = (id) => {
+  return request({
+    url: '/my/cate/del',
+    method: 'delete',
+    params: {
+      id
+    }
+  })
+}
