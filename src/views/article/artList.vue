@@ -168,6 +168,16 @@ export default {
 </script>
 
 <style lang="less" scoped>
+// scoped 属性的作用：让style里的选择器，只能选择当前组件的标签（为了保证样式的独立性，不影响别的组件）
+//scoped原理：(多加了一个data-v的属性选择器)
+// webpack打包的时候，会给组件标签上添加相同data-v-hash值，然后也会给所有选择器后面
+//加上一个[data-v-hash]值的属性选择器
+// <标签 data-v-390246 class="my_a"></标签>
+// 选择器会变成.my_a[data-v-390246]
+
+// 重要注意事项：scoped只会给当前组件所有原生标签添加data-v-hash值属性，还会给组件内根标签添加
+// data-v-hash值属性，组件内的标签不会添加
+
 .search-box {
   display: flex;
   justify-content: space-between;
@@ -181,7 +191,24 @@ export default {
 // ::v-deep作用: 穿透选择, 正常style上加了scope的话, 会给.ql-editor[data-v-hash]属性, 只能选择当前页面标签或者组件的根标签
 // 如果想要选择组件内的标签(那些标签没有data-v-hash值)所以正常选择选不中, 加了::v-deep空格前置的话, 选择器就会变成如下形式
 // [data-v-hash] .ql-editor 这样就能选中组件内的标签的class类名了
-::v-deep .ql-editor {
+// ::v-deep .ql-editor {
+//   min-height: 300px;
+// }  //最小高度:标签本身的高度靠内容撑开,但是无内容就没有300高度,标签会设置最小高度为300px
+// 如果内容大于300px，标签高度也会随着撑开（比300px大）
+
+// 直接给height：那么无论容器的内容有多少，超出300高度的内容会溢出到外面而不是撑开此容器
+/* .ql-editor{
+  min-width: 300px;
+} */ //上面这样写：选不中富文本组件内的标签的
+//原因：你写在这里会被在后面加上[data-v-hash]属性选择器，而他对应的那个标签组件内标签，
+//  scoped又不会给他加入data-v-hash值属性，所以属性选择器选不中
+// 解决：
+// 原来：.ql-editor[data-v-hash值] 你标签上既有class也要有属性才能选中设置样式
+// 解决：Vue提供了一个::v-deep样式语法，设置后，可以把属性选择器被自动添加到左侧
+// 现在[data-v-hash值] .ql-editor
+ ::v-deep .ql-editor {
   min-height: 300px;
-}
+ }
+
+// 总结：scoped不会给组件内的标签添加data-v属性，所以你要用 ::v-deep 穿透选择组件内标签设置样式
 </style>
