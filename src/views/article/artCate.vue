@@ -162,12 +162,35 @@ export default {
       console.log(obj)
       this.dialogVisible = true
 
-      // 数据回显（回填）
-      this.addForm.cate_name = obj.cate_name
-      this.addForm.cate_alias = obj.cate_alias
+      // 让el-dialog第一次挂载el-form时，先用addForm空字符串初始值绑定到内部，后续用作resetFields重置
+      // 所以让真实Dom先创建并在内部绑定好复制号初始值
+
+      // 接着外面真实Dom更新后绑定好了，咱们再给数据回显
+      // 注意：我们给v-model对象赋值只是影响当前显示的值，不会影响到resetFields复制的初始值
+      this.$nextTick(() => {
+        // 数据回显（回填）
+        this.addForm.cate_name = obj.cate_name
+        this.addForm.cate_alias = obj.cate_alias
+      })
     }
   }
 }
+
+// 小bug：(el-form和el-dialog和数据回显，同时用，有bug)
+// 复现：第一次打开网页，先点击修改，再点击新增，发现输入框竟然有值
+// 原因 ：点击修改后，关闭对话框的时候，置空失效了
+// 具体分析：主人公resetFields
+// 线索：Dialog 的内容是懒渲染的，即在第一次被打开之前，传入的默认 slot 不会被渲染到 DOM 上。因此，如果需要执行 DOM 操作，
+// 或通过 ref 获取相应组件，请在 open 事件回调中进行。第二次只是做css的隐藏和显示
+// 线索：Vue数据改变（先执行同步所有）再去更新Dom(异步代码)
+
+// 无问题：第一次打开网页先点击新增按钮=》dialog出现=》el-form组件第一次挂载（关联属性值为空字符串）
+
+// 有问题：第一次打开网页，先点击修改按钮=》虽然dialog变量为true但是同步代码把addForm对象里赋值了（）默认值
+// =》dom更新异步=》dialog出现=》el=》form组件第一次挂载（使用addForm内置做回显然）
+// 然后第一次el-form内绑定了初始值（有值）=》以后做重置，他就用绑定的带值的做重置
+
+// 解决：让数据回显慢点执行
 </script>
 
 <style lang="less" scoped>
