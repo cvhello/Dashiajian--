@@ -8,15 +8,15 @@
         >
       </div>
       <!-- 分类数据表格 -->
-      <el-table :data="cateList" style="width: 100%" border stripe>
+     <el-table style="width: 100%" :data="cateList" border stripe>
         <!-- type是table-column内置属性，你告诉他用index，意思就是第一个单元格用索引值 -->
-        <el-table-column
-          type="index"
+      <el-table-column
           label="序号"
+          type="index"
           width="100"
         ></el-table-column>
-        <el-table-column pro="cate_name"></el-table-column>
-        <el-table-column pro="cate_alias"></el-table-column>
+        <el-table-column prop="cate_name" label="分类名称" ></el-table-column>
+        <el-table-column prop="cate_alias" label="分类别名"></el-table-column>
         <el-table-column label="操作">
           <el-button type="primary" size="mini">修改</el-button>
           <el-button type="danger" size="mini">删除</el-button>
@@ -69,7 +69,9 @@ vue2里它可以用多次，vue3把他移除了
 </template>
 
 <script>
-import { getArtCateListAPI } from '@/api'
+import { getArtCateListAPI, saveArtCateAPI } from '@/api'
+// import { Input } from 'element-ui'
+
 export default {
   name: 'ArtCate',
   data () {
@@ -108,9 +110,23 @@ export default {
     },
     // 对话框确定按钮=》点击事件=》让对话框消失/调用保存文章分类接口
     confirmFn () {
+      this.$refs.addRef.validate(async valid => {
+        if (valid) {
+          // 通过校验
+          const { data: res } = await saveArtCateAPI(this.addForm)
+          if (res.code !== 0) return this.$message.error(res.message)
+          this.$message.success(res.message)
+          this.getArtCateFn()
+          // 再重新请求一次文章列表，拿到最新数据，让表格更新
+          // 生命周期的方法比如created,不会挂载到this身上，无法this.create
+          this.getArtCateFn()
+        } else {
+          return false
+        }
+      })
       this.dialogVisible = false
     },
-    // 对话框取消按钮=》点击事件
+    // 对话框取消按钮=》点击事件dialogCloseFn
     cancelFn () {
       this.dialogVisible = false
     },
