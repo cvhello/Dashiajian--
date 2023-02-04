@@ -83,6 +83,16 @@
         <el-form-item label="文章内容" prop="content">
           <quill-editor v-model="pubForm.content"></quill-editor>
         </el-form-item>
+        <el-form-item label="文章封面">
+  <!-- 用来显示封面的图片 -->
+  <img src="../../assets/images/cover.jpg" alt="" class="cover-img" ref="imgRef" />
+  <br />
+  <!-- 文件选择框，默认被隐藏 -->
+  <input type="file" style="display: none;" accept="image/*" ref="iptFileRef"
+  @change="changeCoverFn" />
+  <!-- 选择封面的按钮 -->
+  <el-button type="text" @click="selCoverFn">+ 选择封面</el-button>
+</el-form-item>
       </el-form>
     </el-dialog>
   </div>
@@ -105,7 +115,8 @@ export default {
       pubForm: { // 发布文章-表单的数据对象
         title: '', // 文章标题
         cate_id: '', // 文章分类id
-        content: '' // 文章内容
+        content: '', // 文章内容
+        cover_img: '' // 封面图片（保存的是个文件）
       },
       pubFormRules: { // 发布文章-表单的验证规则对象
         title: [
@@ -162,6 +173,23 @@ export default {
     async  getCateListFn () {
       const { data: res } = await getArtCateListAPI()
       this.cateList = res.data
+    },
+    // 选择封面点击事件=》让文件选择窗口出现
+    selCoverFn () {
+      this.$refs.iptFileRef.click() // 用JS来模拟一次点击事件动作
+    },
+    // 用户选择了封面文件
+    changeCoverFn (e) {
+      // e.target 拿到触发事件的那个标签(input标签对象本身)
+    // e.target.files 拿到选择的文件数组
+      const files = e.target.files
+      if (files.length === 0) {
+      // 用户没有选择图片，那要把cover_img属性置空
+        this.pubForm.cover_img = null
+      } else {
+      // 用户选择了图片，把文件直接保存到表单对象的属性里
+        this.pubForm.cover_img = files[0]
+      }
     }
   }
 }
@@ -187,6 +215,12 @@ export default {
   }
 }
 
+// 设置图片封面的宽高
+.cover-img {
+  width: 400px;
+  height: 280px;
+  object-fit: cover;
+}
 // 设置富文本编辑器的默认最小高度
 // ::v-deep作用: 穿透选择, 正常style上加了scope的话, 会给.ql-editor[data-v-hash]属性, 只能选择当前页面标签或者组件的根标签
 // 如果想要选择组件内的标签(那些标签没有data-v-hash值)所以正常选择选不中, 加了::v-deep空格前置的话, 选择器就会变成如下形式
