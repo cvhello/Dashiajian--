@@ -18,8 +18,11 @@
         <el-table-column prop="cate_name" label="分类名称" ></el-table-column>
         <el-table-column prop="cate_alias" label="分类别名"></el-table-column>
         <el-table-column label="操作">
-          <el-button type="primary" size="mini">修改</el-button>
+          <!-- scope对象：{row:行对象} -->
+          <template v-slot="scope">
+            <el-button type="primary" size="mini" @click="updateCateBtnFn(scope.row)">修改</el-button>
           <el-button type="danger" size="mini">删除</el-button>
+          </template>
         </el-table-column>
       </el-table>
     </el-card>
@@ -69,8 +72,12 @@ vue2里它可以用多次，vue3把他移除了
 </template>
 
 <script>
-import { getArtCateListAPI, saveArtCateAPI } from '@/api'
-// import { Input } from 'element-ui'
+// 经验：如果用同一个按钮，想要做状态区分
+// 1.定义一个标记变量isEdit(true编辑，false为新增)，还要定义本次要编辑的数据唯一id值，editId
+// 2.在点击修改的时候，isEdit改为true,editId保存要修改的数据id
+// 3.在点击新增按钮的时候，isEdit改为false editId置空
+// 4.在点击保存按钮时(确定按钮时，就可以用isEdit变量做区分了、)
+import { getArtCateListAPI, saveArtCateAPI, updateArtCateAPI } from '@/api'
 
 export default {
   name: 'ArtCate',
@@ -91,7 +98,9 @@ export default {
           { required: true, message: '请输入分类别名', trigger: 'blur' },
           { pattern: /^[a-zA-Z0-9]{1,15}$/, message: '分类别名必须是1-15位的字母数字', trigger: 'blur' }
         ]
-      }
+      },
+      isEdit: false, // 默认新增 true为编辑状态，false为新增状态
+      editId: ''// 保存正在要编辑的数据id值
     }
   },
   created () {
@@ -106,6 +115,8 @@ export default {
     },
     // 添加分类按钮点击事件=》为了对话框出现
     addCateShowDialogBtnFn () {
+      this.isEdit = false // 变回新增状态标记
+      this.editId = ''
       this.dialogVisible = true
     },
     // 对话框确定按钮=》点击事件=》让对话框消失/调用保存文章分类接口
@@ -113,18 +124,27 @@ export default {
       this.$refs.addRef.validate(async valid => {
         if (valid) {
           // 通过校验
-          const { data: res } = await saveArtCateAPI(this.addForm)
-          if (res.code !== 0) return this.$message.error(res.message)
-          this.$message.success(res.message)
-          this.getArtCateFn()
+          if (this.isEdit) {
+            // 要修改
+            // this.addForm.id = this.editId // 把要编辑的文章分类id添加到对象身上
+            //  updateArtCateAPI(this.addForm)
+            const { data: res } = await updateArtCateAPI({ id: this.editId, ...this.addForm })
+            if (res.code !== 0) return this.$message.error(res.message)
+            this.$message.success(res.message)
+          } else {
+            // 要新增
+            const { data: res } = await saveArtCateAPI(this.addForm)
+            if (res.code !== 0) return this.$message.error(res.message)
+            this.$message.success(res.message)
+          }
           // 再重新请求一次文章列表，拿到最新数据，让表格更新
           // 生命周期的方法比如created,不会挂载到this身上，无法this.create
           this.getArtCateFn()
+          this.dialogVisible = false
         } else {
           return false
         }
       })
-      this.dialogVisible = false
     },
     // 对话框取消按钮=》点击事件dialogCloseFn
     cancelFn () {
@@ -133,6 +153,18 @@ export default {
     // 对话框-关闭时的回调
     dialogCloseFn () {
       this.$refs.addRef.resetFields()
+    },
+    // 修改分类按钮-》点击事件（先做数据回显）
+    updateCateBtnFn (obj) {
+      this.isEdit = true
+      this.editId = obj.id
+      // obj 的值：{id:文章分类id。cate_name: 文章分类名字，cate_alias:文章分类别名}
+      console.log(obj)
+      this.dialogVisible = true
+
+      // 数据回显（回填）
+      this.addForm.cate_name = obj.cate_name
+      this.addForm.cate_alias = obj.cate_alias
     }
   }
 }
