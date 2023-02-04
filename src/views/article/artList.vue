@@ -9,11 +9,20 @@
       <div class="search-box">
         <el-form :inline="true" :model="q">
           <el-form-item label="文章分类">
-            <el-select v-model="q.cate_id" placeholder="请选择分类" size="small">
-                    <el-option v-for="obj in cateList" :key="obj.id" :label="obj.cate_name" :value="obj.cate_id"></el-option>
+            <el-select
+              v-model="q.cate_id"
+              placeholder="请选择分类"
+              size="small"
+            >
+              <el-option
+                v-for="obj in cateList"
+                :key="obj.id"
+                :label="obj.cate_name"
+                :value="obj.cate_id"
+              ></el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="发布状态" style="margin-left: 15px;">
+          <el-form-item label="发布状态" style="margin-left: 15px">
             <el-select v-model="q.state" placeholder="请选择状态" size="small">
               <el-option label="已发布" value="已发布"></el-option>
               <el-option label="草稿" value="草稿"></el-option>
@@ -25,7 +34,13 @@
           </el-form-item>
         </el-form>
         <!-- 发表文章的按钮 -->
-        <el-button type="primary" size="small" class="btn-pub" @click="showPubDialogFn">发表文章</el-button>
+        <el-button
+          type="primary"
+          size="small"
+          class="btn-pub"
+          @click="showPubDialogFn"
+          >发表文章</el-button
+        >
       </div>
 
       <!-- 文章表格区域 -->
@@ -34,22 +49,42 @@
     </el-card>
 
     <!-- 发表文章的 Dialog 对话框 -->
-<el-dialog title="发表文章"
-:visible.sync="pubDialogVisible" fullscreen
-:before-close="handleClose">
-  <!-- 发布文章的对话框 -->
-<el-form :model="pubForm" :rules="pubFormRules" ref="pubFormRef" label-width="100px">
-  <el-form-item label="文章标题" prop="title">
-    <el-input v-model="pubForm.title" placeholder="请输入标题"></el-input>
-  </el-form-item>
-  <el-form-item label="文章分类" prop="cate_id">
-    <el-select v-model="pubForm.cate_id" placeholder="请选择分类" style="width: 100%;">
-      <!-- 因为整个表单要发给后台,先去看眼vue代码里绑定的值需要什么,发现接口文档里面是分类的id   -->
-      <el-option v-for="obj in cateList" :key="obj.id" :label="obj.cate_name" :value="obj.cate_id"></el-option>
-    </el-select>
-  </el-form-item>
-</el-form>
-</el-dialog>
+    <el-dialog
+      title="发表文章"
+      :visible.sync="pubDialogVisible"
+      fullscreen
+      :before-close="handleClose"
+    >
+      <!-- 发布文章的对话框 -->
+      <el-form
+        :model="pubForm"
+        :rules="pubFormRules"
+        ref="pubFormRef"
+        label-width="100px"
+      >
+        <el-form-item label="文章标题" prop="title">
+          <el-input v-model="pubForm.title" placeholder="请输入标题"></el-input>
+        </el-form-item>
+        <el-form-item label="文章分类" prop="cate_id">
+          <el-select
+            v-model="pubForm.cate_id"
+            placeholder="请选择分类"
+            style="width: 100%"
+          >
+            <!-- 因为整个表单要发给后台,先去看眼vue代码里绑定的值需要什么,发现接口文档里面是分类的id   -->
+            <el-option
+              v-for="obj in cateList"
+              :key="obj.id"
+              :label="obj.cate_name"
+              :value="obj.cate_id"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="文章内容" prop="content">
+          <quill-editor v-model="pubForm.content"></quill-editor>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
   </div>
 </template>
 
@@ -68,15 +103,19 @@ export default {
       },
       pubDialogVisible: false, // 控制发布文章对话框出现/隐藏（true/false）
       pubForm: { // 发布文章-表单的数据对象
-        title: '',
-        cate_id: ''
+        title: '', // 文章标题
+        cate_id: '', // 文章分类id
+        content: '' // 文章内容
       },
       pubFormRules: { // 发布文章-表单的验证规则对象
         title: [
           { required: true, message: '请输入文章标题', trigger: 'blur' },
           { min: 1, max: 30, message: '文章标题的长度为1-30个字符', trigger: 'blur' }
         ],
-        cate_id: [{ required: true, message: '请选择文章标题', trigger: 'blur' }]
+        cate_id: [{ required: true, message: '请选择文章标题', trigger: 'blur' }],
+        content: [{
+          required: true, message: '请输入文字内容', trigger: 'blur'
+        }]
       },
       cateList: [] // 保存文章分类列表
     }
@@ -136,5 +175,13 @@ export default {
   .btn-pub {
     margin-top: 5px;
   }
+}
+
+// 设置富文本编辑器的默认最小高度
+// ::v-deep作用: 穿透选择, 正常style上加了scope的话, 会给.ql-editor[data-v-hash]属性, 只能选择当前页面标签或者组件的根标签
+// 如果想要选择组件内的标签(那些标签没有data-v-hash值)所以正常选择选不中, 加了::v-deep空格前置的话, 选择器就会变成如下形式
+// [data-v-hash] .ql-editor 这样就能选中组件内的标签的class类名了
+::v-deep .ql-editor {
+  min-height: 300px;
 }
 </style>
