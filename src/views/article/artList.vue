@@ -54,6 +54,7 @@
       :visible.sync="pubDialogVisible"
       fullscreen
       :before-close="handleClose"
+      @close="dialogCloseFn"
     >
       <!-- 发布文章的对话框 -->
       <el-form
@@ -81,7 +82,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="文章内容" prop="content">
-          <quill-editor v-model="pubForm.content" @change="contentChangeFn"></quill-editor>
+          <quill-editor v-model="pubForm.content" @blur="contentChangeFn"></quill-editor>
         </el-form-item>
         <el-form-item label="文章封面" prop="cover_img">
   <!-- 用来显示封面的图片 -->
@@ -104,7 +105,7 @@
 
 <script>
 // webpack会把图片变为一个base64字符串/在打包后的图片临时地址
-import { getArtCateListAPI } from '@/api'
+import { getArtCateListAPI, uploadArticleAPI } from '@/api'
 // 标签和样式中，引入图片文件直接写"静态路径"（把路径放到js的vue变量里再赋予是不行的）
 // 原因：webpack分析标签的时候，如果src的值是一个相对路径，他会去帮我们找到那个路径的文件地址
 // 并一起打包，打包的时候会分析文件的大小，小图转成base64字符串再赋予给src如果是大图拷贝图片换个路径给img的src显示(运行时)
@@ -235,11 +236,26 @@ export default {
       // str的值 "已发布"，或者"草稿" （后端要求的参数值）
       this.pubForm.state = str // 保存到统一表单对象上
 
-      console.log(this.pubForm)
       // 兜底校验
       this.$refs.pubFormRef.validate(async valid => {
         if (valid) {
           // 都通过
+          console.log(this.pubForm)
+          const fd = new FormData() // 准备一个表单数据对象的容器 FormData类是HTML5新出的专门为了装文件内容和
+          // 其他参数的容器
+          // fd.append('参数名'，值)
+          fd.append('title', this.pubForm.title)
+          fd.append('cate_id', this.pubForm.cate_id)
+          fd.append('content', this.pubForm.content)
+          fd.append('cover_img', this.pubForm.cover_img)
+          fd.append('state', this.pubForm.state)
+
+          const { data: res } = await uploadArticleAPI(fd)
+          if (res.code !== 0) return this.$message.error('发布文章失败！')
+          this.$message.success('发布文章成功！')
+
+          // 关闭对话框
+          this.pubDialogVisible = false
         } else {
           return false // 阻止默认行为(因为按钮有默认提交行为)
         }
@@ -249,6 +265,12 @@ export default {
     contentChangeFn () {
       // 目标：如何让el-form校验，只校验content这个规则？
       this.$refs.pubFormRef.validateField('content')
+    },
+    // 新增文章-》对话框关闭时=》清楚表单
+    dialogCloseFn () {
+      this.$refs.pubFormRef.resetFields()
+      // 我们需要手动给封面标签img重新设置一个值，因为他没有收到v-model影响
+      this.$refs.imgRef.setAttribute('src', imgObj)
     }
   }
 }
