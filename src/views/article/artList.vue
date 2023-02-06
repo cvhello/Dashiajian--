@@ -45,7 +45,11 @@
 
 <!-- 文章表格区域 -->
 <el-table :data="artList" style="width: 100%;" border stripe>
-  <el-table-column label="文章标题" prop="title"></el-table-column>
+  <el-table-column label="文章标题" prop="title">
+      <template v-slot="scope">
+<el-link type="primary" @click="showDetailFn(scope.row.id)">{{scope.row.title}}</el-link>
+  </template>
+  </el-table-column>
   <el-table-column label="分类" prop="cate_name"></el-table-column>
   <el-table-column label="发表时间" prop="pub_date">
      <template v-slot="scope">
@@ -125,7 +129,7 @@
 
 <script>
 // webpack会把图片变为一个base64字符串/在打包后的图片临时地址
-import { getArtCateListAPI, uploadArticleAPI, getArtListAPI } from '@/api'
+import { getArtCateListAPI, uploadArticleAPI, getArtListAPI, getArtDetailAPI } from '@/api'
 // 标签和样式中，引入图片文件直接写"静态路径"（把路径放到js的vue变量里再赋予是不行的）
 // 原因：webpack分析标签的时候，如果src的值是一个相对路径，他会去帮我们找到那个路径的文件地址
 // 并一起打包，打包的时候会分析文件的大小，小图转成base64字符串再赋予给src如果是大图拷贝图片换个路径给img的src显示(运行时)
@@ -345,6 +349,12 @@ export default {
       this.q.cate_id = ''
       this.q.state = '' // 对象改变,v-model关联的表单标签也会变为空
       this.getArticleListFn()
+    },
+    // 文章标配点击事件=>为了查看详情
+    async showDetailFn (artId) {
+      // artId:文章id值
+      const { data: res } = await getArtDetailAPI(artId)
+      console.log(res)
     }
   }
 }
