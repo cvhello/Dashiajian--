@@ -92,6 +92,10 @@
   @change="changeCoverFn" />
   <!-- 选择封面的按钮 -->
   <el-button type="text" @click="selCoverFn">+ 选择封面</el-button>
+        </el-form-item>
+        <el-form-item>
+    <el-button type="primary" @click="pubArticleFn('已发布')">发布</el-button>
+    <el-button type="info" @click="pubArticleFn('草稿')">存为草稿</el-button>
 </el-form-item>
       </el-form>
     </el-dialog>
@@ -99,9 +103,21 @@
 </template>
 
 <script>
-import { getArtCateListAPI } from '@/api'
-// 标签和样式中，引入图片文件可以写路径，在Js里要引入图片import引入
 // webpack会把图片变为一个base64字符串/在打包后的图片临时地址
+import { getArtCateListAPI } from '@/api'
+// 标签和样式中，引入图片文件直接写"静态路径"（把路径放到js的vue变量里再赋予是不行的）
+// 原因：webpack分析标签的时候，如果src的值是一个相对路径，他会去帮我们找到那个路径的文件地址
+// 并一起打包，打包的时候会分析文件的大小，小图转成base64字符串再赋予给src如果是大图拷贝图片换个路径给img的src显示(运行时)
+
+// vue变量中路径，赋予给标签，都会当成普通的字符串使用
+// 我们写的路径是在vscode看着文件夹写的（以前好使对对原因：你用live serve/磁盘双击打开，他都能通过你的相对路径）
+// 在指定文件夹下，都能找到图片文件真身
+// 现在：写的模板代码，是要被webpack 翻译处理转换，你vscode里的代码，转换后打包到内存中/dist下，相对路径
+// 就会变化,运行时,你写的固定路径字符串就找不到那个文件的真身了
+
+// 注意:只有相对路径本地图片需要注意,如果你是个http://外链标签图片,可以直接随便用
+// 直接标签里写也行,或者在js用变量保存后赋予给标签 都行,因为运行时,浏览器发现src地址是外链就不就不找相对路径文件夹了
+
 import imgObj from '../../assets/images/cover.jpg'
 export default {
   name: 'ArtList',
@@ -115,11 +131,13 @@ export default {
         state: ''
       },
       pubDialogVisible: false, // 控制发布文章对话框出现/隐藏（true/false）
-      pubForm: { // 发布文章-表单的数据对象
+      pubForm: {
+        // 发布文章-表单的数据对象
         title: '', // 文章标题
         cate_id: '', // 文章分类id
         content: '', // 文章内容
-        cover_img: '' // 封面图片（保存的是个文件）
+        cover_img: '', // 封面图片（保存的是个文件）
+        state: '' // 发布状态 值为：已发布，草稿
       },
       pubFormRules: { // 发布文章-表单的验证规则对象
         title: [
@@ -198,6 +216,13 @@ export default {
         const url = URL.createObjectURL(files[0])
         this.$refs.imgRef.setAttribute('src', url)
       }
+    },
+    // 表单里(点击发布/存为草稿)按钮点击事件=》准备调用后端接口
+    pubArticleFn (str) {
+      // str的值 "已发布"，或者"草稿" （后端要求的参数值）
+      this.pubForm.state = str // 保存到统一表单对象上
+
+      console.log(this.pubForm)
     }
   }
 }
