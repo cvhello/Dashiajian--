@@ -43,8 +43,14 @@
         >
       </div>
 
-      <!-- 文章表格区域 -->
-
+<!-- 文章表格区域 -->
+<el-table :data="artList" style="width: 100%;" border stripe>
+  <el-table-column label="文章标题" prop="title"></el-table-column>
+  <el-table-column label="分类" prop="cate_name"></el-table-column>
+  <el-table-column label="发表时间" prop="pub_date"></el-table-column>
+  <el-table-column label="状态" prop="state"></el-table-column>
+  <el-table-column label="操作"></el-table-column>
+</el-table>
       <!-- 分页区域 -->
     </el-card>
 
@@ -105,7 +111,7 @@
 
 <script>
 // webpack会把图片变为一个base64字符串/在打包后的图片临时地址
-import { getArtCateListAPI, uploadArticleAPI } from '@/api'
+import { getArtCateListAPI, uploadArticleAPI, getArtListAPI } from '@/api'
 // 标签和样式中，引入图片文件直接写"静态路径"（把路径放到js的vue变量里再赋予是不行的）
 // 原因：webpack分析标签的时候，如果src的值是一个相对路径，他会去帮我们找到那个路径的文件地址
 // 并一起打包，打包的时候会分析文件的大小，小图转成base64字符串再赋予给src如果是大图拷贝图片换个路径给img的src显示(运行时)
@@ -126,8 +132,8 @@ export default {
     return {
       // 查询参数对象
       q: {
-        pagenum: 1,
-        pagesize: 2,
+        pagenum: 1, // 默认拿第一页数据
+        pagesize: 2, // 默认当前页需要几条数据(传递给后台,后台就返回几个数据)
         cate_id: '',
         state: ''
       },
@@ -160,13 +166,29 @@ export default {
         }],
         cover_img: [{ required: true, message: '请选择封面', trigger: 'blur' }]
       },
-      cateList: [] // 保存文章分类列表
+      cateList: [], // 保存文章分类列表
+      artList: [], // 保存文章列表
+      total: 0 // 保存现有文章总数
     }
   },
   created () {
+    // 请求分类数据
     this.getCateListFn()
+    // 请求文章列表
+    this.getArticleListFn()
   },
   methods: {
+    // 获取-所有分类
+    async  getCateListFn () {
+      const { data: res } = await getArtCateListAPI()
+      this.cateList = res.data
+    },
+    // 获取-所以的文章列表
+    async getArticleListFn () {
+      const { data: res } = await getArtListAPI(this.q)
+      this.artList = res.data // 保存当前获取的文章列表(注意有分页:不是所有数据)
+      this.total = res.total // 保存总数
+    },
     // 发表文章的按钮点击事件=》让对话框出现
     showPubDialogFn () {
       this.pubDialogVisible = true
@@ -201,11 +223,7 @@ export default {
       // 确认关闭
       done()
     },
-    // 获取-所有分类
-    async  getCateListFn () {
-      const { data: res } = await getArtCateListAPI()
-      this.cateList = res.data
-    },
+
     // 选择封面点击事件=》让文件选择窗口出现
     selCoverFn () {
       this.$refs.iptFileRef.click() // 用JS来模拟一次点击事件动作
@@ -256,6 +274,8 @@ export default {
 
           // 关闭对话框
           this.pubDialogVisible = false
+          // 刷新文章列表=>再次请求文章列表数据
+          this.getArticleListFn()
         } else {
           return false // 阻止默认行为(因为按钮有默认提交行为)
         }
