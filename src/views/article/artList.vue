@@ -151,10 +151,9 @@ export default {
           // content对应quill-editor富文本编辑器，他不是el提供表单标签
           // el-input等输入框的在blur事件时进行校验
           // 下拉菜单，单选框，复选框是在change事件事时进行校验
-          // quill-editor2个事件都没有，所以你输入的内容也不会自动走校验
           // 解决：
           // 自己来给quill-editor绑定change事件(在文档里查到的他支持的change事件内容改变的事件)
-          // 在事件处理函数中内用el-form组件对象内，调用某个校验规则再重新执行
+          // 在事件处理函数中内用el-form组件对象内，调用某个校验规则再重新执行(validateField)
 
           required: true, message: '请输入文字内容', trigger: 'change'
         }],
@@ -227,12 +226,16 @@ export default {
         const url = URL.createObjectURL(files[0])
         this.$refs.imgRef.setAttribute('src', url)
       }
+
+      // 让表单单独校验封面的规则
+      this.$refs.pubFormRef.validateField('cover_img')
     },
     // 表单里(点击发布/存为草稿)按钮点击事件=》准备调用后端接口
     pubArticleFn (str) {
       // str的值 "已发布"，或者"草稿" （后端要求的参数值）
       this.pubForm.state = str // 保存到统一表单对象上
 
+      console.log(this.pubForm)
       // 兜底校验
       this.$refs.pubFormRef.validate(async valid => {
         if (valid) {
