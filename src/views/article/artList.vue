@@ -81,7 +81,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="文章内容" prop="content">
-          <quill-editor v-model="pubForm.content"></quill-editor>
+          <quill-editor v-model="pubForm.content" @change="contentChangeFn"></quill-editor>
         </el-form-item>
         <el-form-item label="文章封面" prop="cover_img">
   <!-- 用来显示封面的图片 -->
@@ -146,7 +146,17 @@ export default {
         ],
         cate_id: [{ required: true, message: '请选择文章标题', trigger: 'change' }],
         content: [{
-          required: true, message: '请输入文字内容', trigger: 'blur'
+          // 为何这个输入内容，校验还不自己去掉
+          // 原因：
+          // content对应quill-editor富文本编辑器，他不是el提供表单标签
+          // el-input等输入框的在blur事件时进行校验
+          // 下拉菜单，单选框，复选框是在change事件事时进行校验
+          // quill-editor2个事件都没有，所以你输入的内容也不会自动走校验
+          // 解决：
+          // 自己来给quill-editor绑定change事件(在文档里查到的他支持的change事件内容改变的事件)
+          // 在事件处理函数中内用el-form组件对象内，调用某个校验规则再重新执行
+
+          required: true, message: '请输入文字内容', trigger: 'change'
         }],
         cover_img: [{ required: true, message: '请选择封面', trigger: 'blur' }]
       },
@@ -231,7 +241,11 @@ export default {
           return false // 阻止默认行为(因为按钮有默认提交行为)
         }
       })
-      console.log(this.pubForm)
+    },
+    // 富文本编辑器内容改变触发此事件方法
+    contentChangeFn () {
+      // 目标：如何让el-form校验，只校验content这个规则？
+      this.$refs.pubFormRef.validateField('content')
     }
   }
 }
