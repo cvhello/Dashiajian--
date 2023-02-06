@@ -100,6 +100,9 @@
 
 <script>
 import { getArtCateListAPI } from '@/api'
+// 标签和样式中，引入图片文件可以写路径，在Js里要引入图片import引入
+// webpack会把图片变为一个base64字符串/在打包后的图片临时地址
+import imgObj from '../../assets/images/cover.jpg'
 export default {
   name: 'ArtList',
   data () {
@@ -186,9 +189,14 @@ export default {
       if (files.length === 0) {
       // 用户没有选择图片，那要把cover_img属性置空
         this.pubForm.cover_img = null
+        // img要显示回默认的cover.png
+        this.$refs.imgRef.setAttribute('src', imgObj)
       } else {
       // 用户选择了图片，把文件直接保存到表单对象的属性里
         this.pubForm.cover_img = files[0]
+        // 把图片文件，要显示到img标签里
+        const url = URL.createObjectURL(files[0])
+        this.$refs.imgRef.setAttribute('src', url)
       }
     }
   }
