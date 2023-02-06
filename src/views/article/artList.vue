@@ -56,6 +56,16 @@
   <el-table-column label="操作"></el-table-column>
 </el-table>
       <!-- 分页区域 -->
+<el-pagination
+  @size-change="handleSizeChangeFn"
+  @current-change="handleCurrentChangeFn"
+  :current-page.sync="q.pagenum"
+  :page-sizes="[2, 3, 5, 10]"
+  :page-size.sync="q.pagesize"
+  layout="total, sizes, prev, pager, next, jumper"
+  :total="total"
+>
+</el-pagination>
     </el-card>
 
     <!-- 发表文章的 Dialog 对话框 -->
@@ -295,6 +305,21 @@ export default {
       this.$refs.pubFormRef.resetFields()
       // 我们需要手动给封面标签img重新设置一个值，因为他没有收到v-model影响
       this.$refs.imgRef.setAttribute('src', imgObj)
+    },
+    // 核心思想:根据选择的页面/条数,影响q对象对应属性的值,再重新发一次请求让后台重新返回数据
+    // 分页=>每页条数改变触发
+    handleSizeChangeFn (sizes) {
+      // sizes:当前需要每页显示的条数
+      // 核心思想:在Pagination的标签上宜家加了.sync,子组件内会双向绑定到右侧变量上(q对象里的pagesize已经改变了
+      // 如果不放心,再写一遍)
+      this.q.pagesize = sizes
+      this.getArticleListFn()
+    },
+    // 当前页面改变时触发
+    handleCurrentChangeFn (nowPage) {
+      // nowPage:当前要看的第几页,页数
+      this.q.pagenum = nowPage
+      this.getArticleListFn()
     }
   }
 }
