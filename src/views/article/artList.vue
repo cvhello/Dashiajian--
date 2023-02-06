@@ -76,14 +76,14 @@
               v-for="obj in cateList"
               :key="obj.id"
               :label="obj.cate_name"
-              :value="obj.cate_id"
+              :value="obj.id"
             ></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="文章内容" prop="content">
           <quill-editor v-model="pubForm.content"></quill-editor>
         </el-form-item>
-        <el-form-item label="文章封面">
+        <el-form-item label="文章封面" prop="cover_img">
   <!-- 用来显示封面的图片 -->
   <img src="../../assets/images/cover.jpg" alt="" class="cover-img" ref="imgRef" />
   <br />
@@ -144,10 +144,11 @@ export default {
           { required: true, message: '请输入文章标题', trigger: 'blur' },
           { min: 1, max: 30, message: '文章标题的长度为1-30个字符', trigger: 'blur' }
         ],
-        cate_id: [{ required: true, message: '请选择文章标题', trigger: 'blur' }],
+        cate_id: [{ required: true, message: '请选择文章标题', trigger: 'change' }],
         content: [{
           required: true, message: '请输入文字内容', trigger: 'blur'
-        }]
+        }],
+        cover_img: [{ required: true, message: '请选择封面', trigger: 'blur' }]
       },
       cateList: [] // 保存文章分类列表
     }
@@ -222,6 +223,14 @@ export default {
       // str的值 "已发布"，或者"草稿" （后端要求的参数值）
       this.pubForm.state = str // 保存到统一表单对象上
 
+      // 兜底校验
+      this.$refs.pubFormRef.validate(async valid => {
+        if (valid) {
+          // 都通过
+        } else {
+          return false // 阻止默认行为(因为按钮有默认提交行为)
+        }
+      })
       console.log(this.pubForm)
     }
   }
