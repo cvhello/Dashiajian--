@@ -131,7 +131,7 @@
 
   <div class="info">
     <span>作者：{{ artDetail.nickname || artDetail.username }}</span>
-    <span>发布时间：{{ artDetail.pub_date }}</span>
+    <span>发布时间：{{ $formatDate(artDetail.pub_date) }}</span>
     <span>所属分类：{{ artDetail.cate_name }}</span>
     <span>状态: {{ artDetail.state }}</span>
   </div>
@@ -140,10 +140,11 @@
   <el-divider></el-divider>
 
   <!-- 文章的封面 -->
-  <img alt="" :src="artDetail.cover_img" />
+  <img v-if="artDetail.cover_img" alt="" :src="'http://big-event-vue-api-t.itheima.net'+artDetail.cover_img" />
 
   <!-- 文章的详情 -->
-  <div class="detail-box">{{artDetail.content}}</div>
+  <!-- <div class="detail-box">{{artDetail.content}}</div> -->
+  <div v-html="artDetail.content" class="detail-box"></div>
 </el-dialog>
   </div>
 </template>
