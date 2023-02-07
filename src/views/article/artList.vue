@@ -57,7 +57,16 @@
   </template>
   </el-table-column>
   <el-table-column label="状态" prop="state"></el-table-column>
-  <el-table-column label="操作"></el-table-column>
+  <el-table-column label="操作">
+    <!--
+      scoped变量值：{
+        row：行数据对象
+      }
+     -->
+  <template v-slot="{ row:row }">
+    <el-button type="danger" size="mini" @click="removeFn(row.id)">删除</el-button>
+  </template>
+</el-table-column>
 </el-table>
       <!-- 分页区域 -->
 <el-pagination
@@ -151,7 +160,7 @@
 
 <script>
 // webpack会把图片变为一个base64字符串/在打包后的图片临时地址
-import { getArtCateListAPI, uploadArticleAPI, getArtListAPI, getArtDetailAPI } from '@/api'
+import { getArtCateListAPI, uploadArticleAPI, getArtListAPI, getArtDetailAPI, delArticleAPI } from '@/api'
 import { baseURL } from '@/utils/request'
 // 标签和样式中，引入图片文件直接写"静态路径"（把路径放到js的vue变量里再赋予是不行的）
 // 原因：webpack分析标签的时候，如果src的值是一个相对路径，他会去帮我们找到那个路径的文件地址
@@ -383,6 +392,17 @@ export default {
       const res = await getArtDetailAPI(artId)
       console.log(res)
       this.artDetail = res.data.data
+    },
+    // 删除文章按钮点击事件
+    async removeFn (artId) {
+      const { data: res } = await delArticleAPI(artId)
+      if (res.code !== 0) return this.$message.error(res.message)
+      this.$message.success('删除文章成功')
+
+      // // 把分页和筛选条件重置，让表格的数据重新请求一次
+      // this.resetFn()
+      // 直接携带当前q里有的参数，重新去后台获取一次最新的数据列表
+      this.getArticleListFn()
     }
   }
 }
