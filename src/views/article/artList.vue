@@ -29,8 +29,12 @@
             </el-select>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" size="small" @click="choseFn">筛选</el-button>
-            <el-button type="info" size="small" @click="resetFn">重置</el-button>
+            <el-button type="primary" size="small" @click="choseFn"
+              >筛选</el-button
+            >
+            <el-button type="info" size="small" @click="resetFn"
+              >重置</el-button
+            >
           </el-form-item>
         </el-form>
         <!-- 发表文章的按钮 -->
@@ -43,42 +47,46 @@
         >
       </div>
 
-<!-- 文章表格区域 -->
-<el-table :data="artList" style="width: 100%;" border stripe>
-  <el-table-column label="文章标题" prop="title">
-      <template v-slot="scope">
-<el-link type="primary" @click="showDetailFn(scope.row.id)">{{scope.row.title}}</el-link>
-  </template>
-  </el-table-column>
-  <el-table-column label="分类" prop="cate_name"></el-table-column>
-  <el-table-column label="发表时间" prop="pub_date">
-     <template v-slot="scope">
-   <span>{{ $formatDate(scope.row.pub_date) }}</span>
-  </template>
-  </el-table-column>
-  <el-table-column label="状态" prop="state"></el-table-column>
-  <el-table-column label="操作">
-    <!--
+      <!-- 文章表格区域 -->
+      <el-table :data="artList" style="width: 100%" border stripe>
+        <el-table-column label="文章标题" prop="title">
+          <template v-slot="scope">
+            <el-link type="primary" @click="showDetailFn(scope.row.id)">{{
+              scope.row.title
+            }}</el-link>
+          </template>
+        </el-table-column>
+        <el-table-column label="分类" prop="cate_name"></el-table-column>
+        <el-table-column label="发表时间" prop="pub_date">
+          <template v-slot="scope">
+            <span>{{ $formatDate(scope.row.pub_date) }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="状态" prop="state"></el-table-column>
+        <el-table-column label="操作">
+          <!--
       scoped变量值：{
         row：行数据对象
       }
      -->
-  <template v-slot="{ row:row }">
-    <el-button type="danger" size="mini" @click="removeFn(row.id)">删除</el-button>
-  </template>
-</el-table-column>
-</el-table>
+          <template v-slot="{ row: row }">
+            <el-button type="danger" size="mini" @click="removeFn(row.id)"
+              >删除</el-button
+            >
+          </template>
+        </el-table-column>
+      </el-table>
       <!-- 分页区域 -->
-<el-pagination
-  @size-change="handleSizeChangeFn"
-  @current-change="handleCurrentChangeFn"
-  :current-page.sync="q.pagenum"
-  :page-sizes="[2, 3, 5, 10]"
-  :page-size.sync="q.pagesize"
-  layout="total, sizes, prev, pager, next, jumper"
-  :total="total"
->
-</el-pagination>
+      <el-pagination
+        @size-change="handleSizeChangeFn"
+        @current-change="handleCurrentChangeFn"
+        :current-page.sync="q.pagenum"
+        :page-sizes="[2, 3, 5, 10]"
+        :page-size.sync="q.pagesize"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="total"
+      >
+      </el-pagination>
     </el-card>
 
     <!-- 发表文章的 Dialog 对话框 -->
@@ -115,46 +123,67 @@
           </el-select>
         </el-form-item>
         <el-form-item label="文章内容" prop="content">
-          <quill-editor v-model="pubForm.content" @blur="contentChangeFn"></quill-editor>
+          <quill-editor
+            v-model="pubForm.content"
+            @blur="contentChangeFn"
+          ></quill-editor>
         </el-form-item>
         <el-form-item label="文章封面" prop="cover_img">
-  <!-- 用来显示封面的图片 -->
-  <img src="../../assets/images/cover.jpg" alt="" class="cover-img" ref="imgRef" />
-  <br />
-  <!-- 文件选择框，默认被隐藏 -->
-  <input type="file" style="display: none;" accept="image/*" ref="iptFileRef"
-  @change="changeCoverFn" />
-  <!-- 选择封面的按钮 -->
-  <el-button type="text" @click="selCoverFn">+ 选择封面</el-button>
+          <!-- 用来显示封面的图片 -->
+          <img
+            src="../../assets/images/cover.jpg"
+            alt=""
+            class="cover-img"
+            ref="imgRef"
+          />
+          <br />
+          <!-- 文件选择框，默认被隐藏 -->
+          <input
+            type="file"
+            style="display: none"
+            accept="image/*"
+            ref="iptFileRef"
+            @change="changeCoverFn"
+          />
+          <!-- 选择封面的按钮 -->
+          <el-button type="text" @click="selCoverFn">+ 选择封面</el-button>
         </el-form-item>
         <el-form-item>
-    <el-button type="primary" @click="pubArticleFn('已发布')">发布</el-button>
-    <el-button type="info" @click="pubArticleFn('草稿')">存为草稿</el-button>
-</el-form-item>
+          <el-button type="primary" @click="pubArticleFn('已发布')"
+            >发布</el-button
+          >
+          <el-button type="info" @click="pubArticleFn('草稿')"
+            >存为草稿</el-button
+          >
+        </el-form-item>
       </el-form>
     </el-dialog>
 
     <!-- 查看文章详情的对话框 -->
-<el-dialog title="文章预览" :visible.sync="detailVisible" width="80%">
-  <h1 class="title">{{artDetail.title}}</h1>
+    <el-dialog title="文章预览" :visible.sync="detailVisible" width="80%">
+      <h1 class="title">{{ artDetail.title }}</h1>
 
-  <div class="info">
-    <span>作者：{{ artDetail.nickname || artDetail.username }}</span>
-    <span>发布时间：{{ $formatDate(artDetail.pub_date) }}</span>
-    <span>所属分类：{{ artDetail.cate_name }}</span>
-    <span>状态: {{ artDetail.state }}</span>
-  </div>
+      <div class="info">
+        <span>作者：{{ artDetail.nickname || artDetail.username }}</span>
+        <span>发布时间：{{ $formatDate(artDetail.pub_date) }}</span>
+        <span>所属分类：{{ artDetail.cate_name }}</span>
+        <span>状态: {{ artDetail.state }}</span>
+      </div>
 
-  <!-- 分割线 -->
-  <el-divider></el-divider>
+      <!-- 分割线 -->
+      <el-divider></el-divider>
 
-  <!-- 文章的封面 -->
-  <img v-if="artDetail.cover_img" alt="" :src="baseURLR+artDetail.cover_img" />
+      <!-- 文章的封面 -->
+      <img
+        v-if="artDetail.cover_img"
+        alt=""
+        :src="baseURLR + artDetail.cover_img"
+      />
 
-  <!-- 文章的详情 -->
-  <!-- <div class="detail-box">{{artDetail.content}}</div> -->
-  <div v-html="artDetail.content" class="detail-box"></div>
-</el-dialog>
+      <!-- 文章的详情 -->
+      <!-- <div class="detail-box">{{artDetail.content}}</div> -->
+      <div v-html="artDetail.content" class="detail-box"></div>
+    </el-dialog>
   </div>
 </template>
 
@@ -399,10 +428,23 @@ export default {
       if (res.code !== 0) return this.$message.error(res.message)
       this.$message.success('删除文章成功')
 
+      // 数组里只保存当前页的数据，别的页需要传参q给后台获取覆盖
+      // 1.的原因：虽然你调用删除接口但是那还是后端删除，前端数据里你没有代码去修改他
+      if (this.artList.length === 1) {
+        if (this.q.pagenum > 1) { // 保证pagenum最小值为1
+          this.q.pagenum--
+        }
+      }
+
       // // 把分页和筛选条件重置，让表格的数据重新请求一次
       // this.resetFn()
       // 直接携带当前q里有的参数，重新去后台获取一次最新的数据列表
       this.getArticleListFn()
+
+      // 问题：在最后一页删除，删除最后一条的时候，虽然页码能回到上一页，但是数据没有出现
+      // 原因：发现network里参数q.pagenum的值不会自己回到上一页，因为你都代码里没有修改过这个q.pagenum
+    // 值，只是调用getArticleListFn()方法，带着之前的参数请求去了所以没有数据
+    // 解决：在调用接口之后，刷新数组列表之前，对页码做一下处理
     }
   }
 }
@@ -453,9 +495,9 @@ export default {
 // 原来：.ql-editor[data-v-hash值] 你标签上既有class也要有属性才能选中设置样式
 // 解决：Vue提供了一个::v-deep样式语法，设置后，可以把属性选择器被自动添加到左侧
 // 现在[data-v-hash值] .ql-editor
- ::v-deep .ql-editor {
+::v-deep .ql-editor {
   min-height: 300px;
- }
+}
 
 // 总结：scoped不会给组件内的标签添加data-v属性，所以你要用 ::v-deep 穿透选择组件内标签设置样式
 </style>
